@@ -1,16 +1,22 @@
-int sensorTemp = A0;
-int sensorHumid = A1;
-int sensorLight = A2;
+int sensorTemp = A1;
+int sensorHumid = A0;
+//int sensorLight = A2;
+
+int analogVal;
+int taul[125];
+int cnt=0;
+int maxval=0;
+int arvo=0;
 
 float calibTemp[8] = {-10,0,10,20,25,30,40,50};
 float calibResist[8] = {747,815,886,961,1000,1040,1122,1209};
 //float calibVolt[8] = {2.833428735, 2.727272727, 2.624602333, 2.524222336, 2.475, 2.426470588, 2.332704995, 2.240832956}; //Vin 4.95V
-float calibVolt[8] = {2.844876932, 2.738292011, 2.635206787, 2.534421214, 2.485, 2.43627451, 2.342130066, 2.249886827}; //Vin 4.97V
-//float calibVolt[8] = {2.862049227, 2.754820937, 2.651113468, 2.549719531, 2.5, 2.450980392, 2.356267672, 2.263467632}; //Vin 5V
+//float calibVolt[8] = {2.844876932, 2.738292011, 2.635206787, 2.534421214, 2.485, 2.43627451, 2.342130066, 2.249886827}; //Vin 4.97V
+float calibVolt[8] = {2.862049227, 2.754820937, 2.651113468, 2.549719531, 2.5, 2.450980392, 2.356267672, 2.263467632}; //Vin 5V
 float calibHumidTemp[6] = {10,15,20,25,30,35};
 float calibHumidPercent[10] = {20,25,30,35,40,45,50,55,60,65};
 float calibHumid[10][6] ={
-{30000, 21000,13500,9800,8000,6300},
+{30000,21000,13500,9800,8000,6300},
 {16000,10500,6700,4803,3900,3100},
 {7200,5100,3300,2500,2000,1500},
 {3200,2350,1800,1300,980,750},
@@ -31,24 +37,35 @@ float humResistor = 1000; //kohm
 
 void setup() {
   Serial.begin(9600);
+  analogWrite(5,128); //980Hz PWM, pin 5
 }
 
 void loop() {
   temperature = tempAverage();
   humidity = humidAverage();
-  //light = (analogRead(sensorPin3));
+  //light = (analogRead(sensorLight));
   float humidTemp = measureHumidity(temperature, humidity);
   Serial.print(" Temperature: ");
   Serial.print(temperature, 3);
-  Serial.print(" Humidity ohms: ");
+  Serial.print(" HumOhm");
   Serial.print(humidity);
-  Serial.print(" Tempdiff: ");
+  Serial.print(" Humidity %: ");
   Serial.println(humidTemp);
-  delay(1000);
+  delay(3000);
+}
+
+float humAvg(){
+  float humidAverage[20];
+  for (int k = 0; k < 20; k = k + 1){
+    humidAverage[k] = analogRead(sensorHumid);
+    Serial.println(humidAverage[k]);
+    delay(100);
+  }
+  return humidAverage[19];
 }
 
 float humidAverage(){
-  float humidInput = (analogRead(sensorHumid));
+  float humidInput = humAvg();
   float humVolt = (humidInput  * 5 / 1023);
   float humCur = (5 - humVolt) / humResistor;
   float humOhm = humVolt / humCur;
@@ -60,7 +77,7 @@ float measureHumidity(float temp, float humOhm){
   int i = 0;
   do {
     tableTemp = calibHumidTemp[i];
-    i = i+1;
+    i = i + 1;
   } while (tableTemp < temp);
   i = i-1; //kumotaan viimeisin muutos i-muuttujaan
 
@@ -114,5 +131,4 @@ float measureTemperature(){
   float tempResult = kulmakerroin * voltage + B;
   return tempResult;
 }
-
 
