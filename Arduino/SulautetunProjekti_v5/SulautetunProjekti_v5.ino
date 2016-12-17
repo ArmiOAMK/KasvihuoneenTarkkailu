@@ -1,11 +1,8 @@
 int sensorTemp = A1;
 int sensorHumid = A0;
-//int sensorLight = A2;
 
 float calibTemp[8] = {-10,0,10,20,25,30,40,50};
 float calibResist[8] = {747,815,886,961,1000,1040,1122,1209};
-//float calibVolt[8] = {2.833428735, 2.727272727, 2.624602333, 2.524222336, 2.475, 2.426470588, 2.332704995, 2.240832956}; //Vin 4.95V
-//float calibVolt[8] = {2.844876932, 2.738292011, 2.635206787, 2.534421214, 2.485, 2.43627451, 2.342130066, 2.249886827}; //Vin 4.97V
 float calibVolt[8] = {2.862049227, 2.754820937, 2.651113468, 2.549719531, 2.5, 2.450980392, 2.356267672, 2.263467632}; //Vin 5V
 float calibHumidTemp[6] = {10,15,20,25,30,35};
 float calibHumidPercent[10] = {20,25,30,35,40,45,50,55,60,65};
@@ -25,7 +22,7 @@ float combinedHumid[10];
 
 float tempAvg;
 float x1,x2,y1,y2,kulmakerroin,B;
-float temperature,humidity,light;
+float temperature,humidity;
 
 float humResistor = 1000; //kohm
 
@@ -36,7 +33,6 @@ void setup() {
 void loop() {
   temperature = tempAverage();
   humidity = humidityCalc();
-  //light = (analogRead(sensorLight));
   float humidTemp = measureHumidity(temperature, humidity);
   Serial.print(temperature, 2);
   Serial.print(",");
