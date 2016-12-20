@@ -1,12 +1,12 @@
 int sensorTemp = A1;
 int sensorHumid = A0;
 
-float calibTemp[8] = {-10,0,10,20,25,30,40,50};
-float calibResist[8] = {747,815,886,961,1000,1040,1122,1209};
+float calibTemp[8] = {-10,0,10,20,25,30,40,50}; //lämpötila-taulukko
+float calibResist[8] = {747,815,886,961,1000,1040,1122,1209}; //lämpötila-vastukset
 float calibVolt[8] = {2.862049227, 2.754820937, 2.651113468, 2.549719531, 2.5, 2.450980392, 2.356267672, 2.263467632}; //Vin 5V
-float calibHumidTemp[6] = {10,15,20,25,30,35};
-float calibHumidPercent[10] = {20,25,30,35,40,45,50,55,60,65};
-float calibHumid[10][6] ={
+float calibHumidTemp[6] = {10,15,20,25,30,35}; //kosteus-lämpötila-taulukko
+float calibHumidPercent[10] = {20,25,30,35,40,45,50,55,60,65}; //kosteusprosentti-taulukko
+float calibHumid[10][6] ={ //kosteusmittarin vastus-taulukko
 {30000,21000,13500,9800,8000,6300},
 {16000,10500,6700,4803,3900,3100},
 {7200,5100,3300,2500,2000,1500},
@@ -18,28 +18,29 @@ float calibHumid[10][6] ={
 {64,51,40,31,25,21},
 {38,31,25,20,17,13}
 };
-float combinedHumid[10];
+float combinedHumid[10]; //yhdistetty taulukko painotetulle keskiarvolle lämpötilasta kosteusmittausta varten
 
 float tempAvg;
 float x1,x2,y1,y2,kulmakerroin,B;
 float temperature,humidity;
 
-float humResistor = 1000; //kohm
+float humResistor = 1000; //kosteusmittarin-vastus kohm, eli 1Mohm
 
 void setup() {
   Serial.begin(9600);
 }
 
 void loop() {
-  temperature = tempAverage();
-  humidity = humidityCalc();
-  float humidTemp = measureHumidity(temperature, humidity);
+  temperature = tempAverage(); //ensin lasketaan lämpötila
+  humidity = humidityCalc();  //lasketaan kosteusmittarin vastus
+  float humidResult = measureHumidity(temperature, humidity); //lämpötilan ja kosteumittarin vastuksen perusteella lasketaan kosteusprosentti
   Serial.print(temperature, 2);
   Serial.print(",");
-  Serial.println(humidTemp);
+  Serial.println(humidResult);
   delay(3000);
 }
 
+//kosteusmittarin vastus
 float humidityCalc(){
   float humidInput = analogRead(sensorHumid);
   float humVolt = (humidInput  * 5 / 1023);
@@ -48,6 +49,7 @@ float humidityCalc(){
   return humOhm;
 }
 
+//lasketaan kosteusprosentti
 float measureHumidity(float temp, float humOhm){
   float tableTemp = 0;
   int i = 0;
